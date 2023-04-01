@@ -14,7 +14,7 @@ const { urlencoded } = require("express");
 app.use(urlencoded({ extended: true }));
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.get("/", async (req, res) => {
   res.send("yahoo!!!");
