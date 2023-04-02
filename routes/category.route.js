@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express.Router();
+let jwt = require("jsonwebtoken");
 
 const CategoryModel = require("../models/category.model");
 
@@ -7,7 +8,7 @@ const CategoryModel = require("../models/category.model");
 
 app.post("/", async (req, res) => {
   const { name, slug, image, owner } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   try {
     let category = new CategoryModel({
       name,
@@ -28,6 +29,17 @@ app.post("/", async (req, res) => {
 app.get("/", async (req, res) => {
   const { query } = req.query;
 
+  let { token } = req.headers;
+  if (!token) {
+    return res.send({ message: [], state: "NOT" });
+  }
+  if (token == "abhi") {
+    return res.send({ message: [], state: "NOT" });
+  }
+
+  token = jwt.verify(token, process.env.token_password);
+  let owner = token.id;
+
   try {
     if (query) {
       let data = await CategoryModel.find(
@@ -38,7 +50,7 @@ app.get("/", async (req, res) => {
       );
       return res.send({ message: data, state: "OK" });
     }
-    const data = await CategoryModel.find();
+    const data = await CategoryModel.find({ owner });
     return res.send({ message: data, state: "OK" });
   } catch (e) {
     return res.send({ message: e.message, state: "NOT" });

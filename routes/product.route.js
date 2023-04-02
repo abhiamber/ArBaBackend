@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express.Router();
+let jwt = require("jsonwebtoken");
 
 const ProdModel = require("../models/product.model");
 
@@ -30,6 +31,16 @@ app.post("/", async (req, res) => {
 
 app.get("/", async (req, res) => {
   const { query, category } = req.query;
+  let { token } = req.headers;
+  if (!token) {
+    return res.send({ message: [], state: "NOT" });
+  }
+  if (token == "abhi") {
+    return res.send({ message: [], state: "NOT" });
+  }
+
+  token = jwt.verify(token, process.env.token_password);
+  let owner = token.id;
 
   try {
     if (query) {
@@ -41,7 +52,7 @@ app.get("/", async (req, res) => {
       );
       return res.send({ message: data, state: "OK" });
     }
-    const data = await ProdModel.find();
+    const data = await ProdModel.find({ owner });
     return res.send({ message: data, state: "OK" });
   } catch (e) {
     return res.send({ message: e.message, state: "NOT" });
